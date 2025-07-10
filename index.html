@@ -3,34 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drive Audio Player</title>
+    <title>Google Drive Audio Player</title>
     <style>
         body {
-            margin: 0;
-            background: #121212;
+            background: #111;
             color: white;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .file {
+            background: #222;
+            margin: 10px auto;
+            padding: 10px;
+            max-width: 400px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .file:hover {
+            background: #333;
         }
         .player {
             background: #1e1e1e;
+            margin-top: 20px;
             padding: 20px;
             border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
             max-width: 400px;
-            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+            display: none;
         }
         .player img {
             width: 100%;
             border-radius: 10px;
-        }
-        .player h2 {
-            margin: 15px 0;
         }
         audio {
             width: 100%;
@@ -50,18 +56,51 @@
 </head>
 <body>
 
-    <div class="player">
-        <img src="https://cdn-icons-png.flaticon.com/512/727/727245.png" alt="Music Image">
-        <h2>My Google Drive Audio</h2>
+    <h1>Google Drive Audio Files</h1>
+    <div id="files"></div>
 
-        <!-- Replace FILE_ID with your Google Drive file ID -->
-        <audio id="audio" src="https://drive.google.com/uc?export=download&id=YOUR_FILE_ID"></audio>
-
+    <div class="player" id="player">
+        <img id="thumb" src="https://cdn-icons-png.flaticon.com/512/727/727245.png" alt="Audio Thumbnail">
+        <h2 id="song-name"></h2>
+        <audio id="audio" controls></audio>
         <button onclick="togglePlay()">Play/Pause</button>
+        <p id="time">0:00 / 0:00</p>
     </div>
 
     <script>
+        const folderId = "1IrGrZRsN90Eifzes7robm8ESg9tijudo";
+        const apiKey = "AIzaSyD41ZNerRUG1BhWZIReWxIUvYDoHXLrVuw";
+
+        const player = document.getElementById("player");
         const audio = document.getElementById("audio");
+        const timeDisplay = document.getElementById("time");
+
+        async function listPublicFiles() {
+            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType,thumbnailLink)`;
+            const res = await fetch(url);
+            const data = await res.json();
+
+            const filesDiv = document.getElementById("files");
+            filesDiv.innerHTML = "";
+
+            data.files.forEach(file => {
+                if (file.mimeType.startsWith("audio")) {
+                    const div = document.createElement("div");
+                    div.className = "file";
+                    div.innerHTML = `${file.name}`;
+                    div.onclick = () => loadPlayer(file.id, file.name, file.thumbnailLink);
+                    filesDiv.appendChild(div);
+                }
+            });
+        }
+
+        function loadPlayer(fileId, name, thumb) {
+            document.getElementById("song-name").innerText = name;
+            document.getElementById("thumb").src = thumb || "https://cdn-icons-png.flaticon.com/512/727/727245.png";
+            audio.src = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            player.style.display = "block";
+            audio.play();
+        }
 
         function togglePlay() {
             if (audio.paused) {
@@ -70,6 +109,20 @@
                 audio.pause();
             }
         }
+
+        audio.ontimeupdate = () => {
+            const current = Math.floor(audio.currentTime);
+            const duration = Math.floor(audio.duration) || 0;
+            timeDisplay.innerText = `${formatTime(current)} / ${formatTime(duration)}`;
+        };
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        listPublicFiles();
     </script>
 
 </body>
