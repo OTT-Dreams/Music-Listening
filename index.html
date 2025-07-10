@@ -24,10 +24,16 @@
             cursor: pointer;
             transition: background 0.3s;
             text-align: center;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+        .file::-webkit-scrollbar {
+            height: 5px;
         }
         .file:hover {
             background: #333;
         }
+
         .player {
             position: fixed;
             bottom: 0;
@@ -40,24 +46,49 @@
             align-items: center;
             justify-content: space-between;
             z-index: 999;
+            flex-wrap: wrap;
         }
+
         .player-info {
             display: flex;
             align-items: center;
             gap: 10px;
+            flex: 1;
+            min-width: 200px;
         }
+
         .player-info img {
             width: 40px;
             height: 40px;
             border-radius: 5px;
             object-fit: cover;
         }
-        .player-info h2 {
-            font-size: 16px;
-            margin: 0;
+
+        .scroll-name {
+            overflow: hidden;
+            white-space: nowrap;
+            flex: 1;
         }
+
+        .scroll-name span {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scrollText 10s linear infinite;
+        }
+
+        @keyframes scrollText {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
         audio {
-            width: 200px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .audio-wrap {
+            flex: 1 1 100%;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -69,9 +100,11 @@
     <div class="player" id="player">
         <div class="player-info">
             <img id="thumb" src="https://cdn-icons-png.flaticon.com/512/727/727245.png" alt="Audio Thumbnail">
-            <h2 id="song-name">Select a Song</h2>
+            <div class="scroll-name"><span id="song-name">Select a Song</span></div>
         </div>
-        <audio id="audio" controls></audio>
+        <div class="audio-wrap">
+            <audio id="audio" controls></audio>
+        </div>
     </div>
 
     <script>
@@ -79,7 +112,7 @@
         const apiKey = "AIzaSyD41ZNerRUG1BhWZIReWxIUvYDoHXLrVuw";
 
         const audio = document.getElementById("audio");
-        const songName = document.getElementById("song-name");
+        const songNameSpan = document.getElementById("song-name");
         const thumb = document.getElementById("thumb");
 
         async function listPublicFiles() {
@@ -103,7 +136,7 @@
 
         function loadPlayer(fileId, name, thumbnailLink) {
             audio.src = `https://drive.google.com/uc?export=download&id=${fileId}`;
-            songName.innerText = name;
+            songNameSpan.innerText = name;
             thumb.src = thumbnailLink || "https://cdn-icons-png.flaticon.com/512/727/727245.png";
             audio.play();
         }
