@@ -1,173 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive Audio Player</title>
-    <style>
-        body {
-            margin: 0;
-            background: #111;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-        h1 {
-            text-align: center;
-            padding: 20px;
-        }
-        .file {
-            background: #222;
-            margin: 10px auto;
-            padding: 10px;
-            max-width: 400px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .file:hover {
-            background: #333;
-        }
-        .menu-btn {
-            color: white;
-            background: transparent;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive Audio Player</title>
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+            padding: 20px;
+        }
+        .file {
+            background: #222;
+            margin: 10px auto;
+            padding: 10px;
+            max-width: 400px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file:hover {
+            background: #333;
+        }
+        .menu-btn {
+            color: white;
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
 
-        .player {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #1e1e1e;
-            padding: 5px 0;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 999;
-        }
+        .player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #1e1e1e;
+            padding: 5px 0;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 999;
+        }
 
-        .player-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-            padding: 0 10px;
-            box-sizing: border-box;
-        }
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
 
-        .player-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 5px;
-            object-fit: cover;
-        }
+        .player-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
 
-        .scroll-name {
-            overflow: hidden;
-            white-space: nowrap;
-            flex: 1;
-        }
+        .scroll-name {
+            overflow: hidden;
+            white-space: nowrap;
+            flex: 1;
+        }
 
-        .scroll-name span {
-            display: inline-block;
-            padding-left: 100%;
-            animation: scrollText 10s linear infinite;
-        }
+        .scroll-name span {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scrollText 10s linear infinite;
+        }
 
-        @keyframes scrollText {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
-        }
+        @keyframes scrollText {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
 
-        iframe {
-            width: 100%;
-            height: 60px;
-            border: none;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
+        iframe {
+            width: 100%;
+            height: 60px;
+            border: none;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 </head>
 <body>
 
-    <h1>Google Drive Audio Files</h1>
-    <div id="files"></div>
+    <h1>Google Drive Audio Files</h1>
+    <div id="files"></div>
 
-    <div class="player" id="player">
-        <div class="player-info">
-            <img id="thumb" src="https://cdn-icons-png.flaticon.com/512/727/727245.png" alt="Audio Thumbnail">
-            <div class="scroll-name"><span id="song-name">Select a Song</span></div>
-        </div>
-        <iframe id="drivePlayer" src=""></iframe>
-    </div>
+    <div class="player" id="player">
+        <div class="player-info">
+            <img id="thumb" src="https://cdn-icons-png.flaticon.com/512/727/727245.png" alt="Audio Thumbnail">
+            <div class="scroll-name"><span id="song-name">Select a Song</span></div>
+        </div>
+        <iframe id="drivePlayer" src=""></iframe>
+    </div>
 
-    <script>
-        const folderId = "1IrGrZRsN90Eifzes7robm8ESg9tijudo";
-        const apiKey = "AIzaSyD41ZNerRUG1BhWZIReWxIUvYDoHXLrVuw";
+    <script>
+        const folderId = "1IrGrZRsN90Eifzes7robm8ESg9tijudo";
+        const apiKey = "AIzaSyD41ZNerRUG1BhWZIReWxIUvYDoHXLrVuw";
 
-        const songNameSpan = document.getElementById("song-name");
-        const thumb = document.getElementById("thumb");
-        const drivePlayer = document.getElementById("drivePlayer");
+        const songNameSpan = document.getElementById("song-name");
+        const thumb = document.getElementById("thumb");
+        const drivePlayer = document.getElementById("drivePlayer");
 
-        const supportedMimeTypes = [
-            "audio/mpeg",
-            "audio/mp4",
-            "audio/x-m4a",
-            "audio/ogg"
-        ];
+        const supportedMimeTypes = [
+            "audio/mpeg",
+            "audio/mp4",
+            "audio/x-m4a",
+            "audio/ogg"
+        ];
 
-        async function listPublicFiles() {
-            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType,thumbnailLink)`;
-            const res = await fetch(url);
-            const data = await res.json();
+        async function listPublicFiles() {
+            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType,thumbnailLink)`;
+            const res = await fetch(url);
+            const data = await res.json();
 
-            const filesDiv = document.getElementById("files");
-            filesDiv.innerHTML = "";
+            const filesDiv = document.getElementById("files");
+            filesDiv.innerHTML = "";
 
-            data.files.forEach(file => {
-                if (supportedMimeTypes.includes(file.mimeType)) {
-                    const div = document.createElement("div");
-                    div.className = "file";
+            data.files.forEach(file => {
+                if (supportedMimeTypes.includes(file.mimeType)) {
+                    const div = document.createElement("div");
+                    div.className = "file";
 
-                    const nameDiv = document.createElement("div");
-                    nameDiv.innerText = file.name;
-                    nameDiv.style.flex = "1";
-                    nameDiv.onclick = () => loadPlayer(file.id, file.name, file.thumbnailLink);
+                    const nameDiv = document.createElement("div");
+                    nameDiv.innerText = file.name;
+                    nameDiv.style.flex = "1";
+                    nameDiv.onclick = () => loadPlayer(file.id, file.name, file.thumbnailLink);
 
-                    const menuBtn = document.createElement("button");
-                    menuBtn.className = "menu-btn";
-                    menuBtn.innerHTML = "⋮";
-                    menuBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        showAbout(file.name);
-                    };
+                    const menuBtn = document.createElement("button");
+                    menuBtn.className = "menu-btn";
+                    menuBtn.innerHTML = "⋮";
+                    menuBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        showAbout(file.name);
+                    };
 
-                    div.appendChild(nameDiv);
-                    div.appendChild(menuBtn);
-                    filesDiv.appendChild(div);
-                }
-            });
-        }
+                    div.appendChild(nameDiv);
+                    div.appendChild(menuBtn);
+                    filesDiv.appendChild(div);
+                }
+            });
+        }
 
-        function loadPlayer(fileId, name, thumbnailLink) {
-            songNameSpan.innerText = name;
-            thumb.src = thumbnailLink || "https://cdn-icons-png.flaticon.com/512/727/727245.png";
-            drivePlayer.src = `https://drive.google.com/file/d/${fileId}/preview?rm=m
-inimal`;
-        }
+        function loadPlayer(fileId, name, thumbnailLink) {
+            songNameSpan.innerText = name;
+            thumb.src = thumbnailLink || "https://cdn-icons-png.flaticon.com/512/727/727245.png";
+            drivePlayer.src = `https://drive.google.com/file/d/${fileId}/preview?rm=minimal`;
+        }
 
-        function showAbout(name) {
-            alert("About: " + name);
-        }
+        function showAbout(name) {
+            alert("About: " + name);
+        }
 
-        listPublicFiles();
-    </script>
+        listPublicFiles();
+    </script>
 
 </body>
 </html>
