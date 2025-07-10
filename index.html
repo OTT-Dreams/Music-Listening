@@ -85,18 +85,12 @@
             100% { transform: translateX(-100%); }
         }
 
-        audio {
+        iframe {
             width: 100%;
-        }
-
-        button#playPause {
-            background: #444;
-            color: white;
+            height: 60px;
             border: none;
-            padding: 10px 20px;
-            margin: 5px;
-            cursor: pointer;
-            border-radius: 5px;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </head>
@@ -110,8 +104,7 @@
             <img id="thumb" src="https://cdn-icons-png.flaticon.com/512/727/727245.png" alt="Audio Thumbnail">
             <div class="scroll-name"><span id="song-name">Select a Song</span></div>
         </div>
-        <audio id="audioPlayer" controls></audio>
-        <button id="playPause">Play</button>
+        <iframe id="drivePlayer" src=""></iframe>
     </div>
 
     <script>
@@ -120,8 +113,7 @@
 
         const songNameSpan = document.getElementById("song-name");
         const thumb = document.getElementById("thumb");
-        const audioPlayer = document.getElementById("audioPlayer");
-        const playPauseBtn = document.getElementById("playPause");
+        const drivePlayer = document.getElementById("drivePlayer");
 
         const supportedMimeTypes = [
             "audio/mpeg",
@@ -166,24 +158,11 @@
         function loadPlayer(fileId, name, thumbnailLink) {
             songNameSpan.innerText = name;
             thumb.src = thumbnailLink || "https://cdn-icons-png.flaticon.com/512/727/727245.png";
-            audioPlayer.src = `https://drive.google.com/uc?export=download&id=${fileId}`;
-            audioPlayer.play();
-            playPauseBtn.innerText = "Pause";
+            drivePlayer.src = `https://drive.google.com/file/d/${fileId}/preview?rm=minimal`;
         }
 
         function showAbout(name) {
             alert("About: " + name);
-        }
-
-        playPauseBtn.onclick = function() {
-            if (audioPlayer.src === "") return;
-            if (audioPlayer.paused) {
-                audioPlayer.play();
-                playPauseBtn.innerText = "Pause";
-            } else {
-                audioPlayer.pause();
-                playPauseBtn.innerText = "Play";
-            }
         }
 
         listPublicFiles();
