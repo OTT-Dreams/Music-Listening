@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive Audio Player Fullscreen</title>
+    <title>Google Drive Audio Player</title>
     <style>
         body {
             margin: 0;
@@ -38,43 +38,59 @@
             cursor: pointer;
         }
 
-        .fullscreen-player {
+        .player {
             position: fixed;
-            top: 0;
+            bottom: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0,0,0,0.9);
-            display: none;
+            width: 100%;
+            background: #1e1e1e;
+            padding: 5px 0;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+            display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            z-index: 9999;
+            z-index: 999;
         }
-        .fullscreen-player iframe {
-            width: 90%;
-            height: 60%;
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .player-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .scroll-name {
+            overflow: hidden;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        .scroll-name span {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scrollText 10s linear infinite;
+        }
+
+        @keyframes scrollText {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        iframe {
+            width: 100%;
+            height: 60px;
             border: none;
-        }
-        .fullscreen-player img {
-            max-width: 200px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-        .fullscreen-player h2 {
-            margin: 10px 0;
-            text-align: center;
-            font-size: 18px;
-        }
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 30px;
-            color: white;
-            background: transparent;
-            border: none;
-            cursor: pointer;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </head>
@@ -83,17 +99,21 @@
     <h1>Google Drive Audio Files</h1>
     <div id="files"></div>
 
-    <!-- Fullscreen Player -->
-    <div id="fullscreenPlayer" class="fullscreen-player">
-        <button class="close-btn" onclick="closeFullscreen()">×</button>
-        <img id="fullscreenThumb" src="" alt="Audio Thumbnail">
-        <h2 id="fullscreenSongName">Loading...</h2>
-        <iframe id="fullscreenIframe" src=""></iframe>
+    <div class="player" id="player">
+        <div class="player-info">
+            <img id="thumb" src="https://cdn-icons-png.flaticon.com/512/727/727245.png" alt="Audio Thumbnail">
+            <div class="scroll-name"><span id="song-name">Select a Song</span></div>
+        </div>
+        <iframe id="drivePlayer" src=""></iframe>
     </div>
 
     <script>
         const folderId = "1IrGrZRsN90Eifzes7robm8ESg9tijudo";
         const apiKey = "AIzaSyD41ZNerRUG1BhWZIReWxIUvYDoHXLrVuw";
+
+        const songNameSpan = document.getElementById("song-name");
+        const thumb = document.getElementById("thumb");
+        const drivePlayer = document.getElementById("drivePlayer");
 
         const supportedMimeTypes = [
             "audio/mpeg",
@@ -101,11 +121,6 @@
             "audio/x-m4a",
             "audio/ogg"
         ];
-
-        const fullscreenPlayer = document.getElementById("fullscreenPlayer");
-        const fullscreenIframe = document.getElementById("fullscreenIframe");
-        const fullscreenThumb = document.getElementById("fullscreenThumb");
-        const fullscreenSongName = document.getElementById("fullscreenSongName");
 
         async function listPublicFiles() {
             const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType,thumbnailLink)`;
@@ -123,7 +138,7 @@
                     const nameDiv = document.createElement("div");
                     nameDiv.innerText = file.name;
                     nameDiv.style.flex = "1";
-                    nameDiv.onclick = () => openFullscreen(file.id, file.name, file.thumbnailLink);
+                    nameDiv.onclick = () => loadPlayer(file.id, file.name, file.thumbnailLink);
 
                     const menuBtn = document.createElement("button");
                     menuBtn.className = "menu-btn";
@@ -140,16 +155,10 @@
             });
         }
 
-        function openFullscreen(fileId, name, thumbnailLink) {
-            fullscreenIframe.src = `https://drive.google.com/file/d/${fileId}/preview?rm=minimal`;
-            fullscreenThumb.src = thumbnailLink || "https://cdn-icons-png.flaticon.com/512/727/727245.png";
-            fullscreenSongName.innerText = name;
-            fullscreenPlayer.style.display = "flex";
-        }
-
-        function closeFullscreen() {
-            fullscreenPlayer.style.display = "none";
-            fullscreenIframe.src = "";
+        function loadPlayer(fileId, name, thumbnailLink) {
+            songNameSpan.innerText = name;
+            thumb.src = thumbnailLink || "https://cdn-icons-png.flaticon.com/512/727/727245.png";
+            drivePlayer.src = `https://drive.google.com/file/d/${fileId}/preview?rm=minimal`;
         }
 
         function showAbout(name) {
