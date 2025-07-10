@@ -6,9 +6,12 @@
     <title>Google Drive Audio Player</title>
     <style>
         body {
+            margin: 0;
             background: #111;
             color: white;
             font-family: Arial, sans-serif;
+        }
+        h1 {
             text-align: center;
             padding: 20px;
         }
@@ -20,37 +23,41 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
+            text-align: center;
         }
         .file:hover {
             background: #333;
         }
         .player {
-            background: #1e1e1e;
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-            display: none;
-        }
-        .player img {
+            position: fixed;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            border-radius: 10px;
+            background: #1e1e1e;
+            padding: 10px;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 999;
+        }
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .player-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+        .player-info h2 {
+            font-size: 16px;
+            margin: 0;
         }
         audio {
-            width: 100%;
-            margin-top: 10px;
-        }
-        button {
-            margin-top: 15px;
-            padding: 10px 20px;
-            background: #1DB954;
-            border: none;
-            color: white;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
+            width: 200px;
         }
     </style>
 </head>
@@ -60,20 +67,20 @@
     <div id="files"></div>
 
     <div class="player" id="player">
-        <img id="thumb" src="https://cdn-icons-png.flaticon.com/512/727/727245.png" alt="Audio Thumbnail">
-        <h2 id="song-name"></h2>
+        <div class="player-info">
+            <img id="thumb" src="https://cdn-icons-png.flaticon.com/512/727/727245.png" alt="Audio Thumbnail">
+            <h2 id="song-name">Select a Song</h2>
+        </div>
         <audio id="audio" controls></audio>
-        <button onclick="togglePlay()">Play/Pause</button>
-        <p id="time">0:00 / 0:00</p>
     </div>
 
     <script>
         const folderId = "1IrGrZRsN90Eifzes7robm8ESg9tijudo";
         const apiKey = "AIzaSyD41ZNerRUG1BhWZIReWxIUvYDoHXLrVuw";
 
-        const player = document.getElementById("player");
         const audio = document.getElementById("audio");
-        const timeDisplay = document.getElementById("time");
+        const songName = document.getElementById("song-name");
+        const thumb = document.getElementById("thumb");
 
         async function listPublicFiles() {
             const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType,thumbnailLink)`;
@@ -87,39 +94,18 @@
                 if (file.mimeType.startsWith("audio")) {
                     const div = document.createElement("div");
                     div.className = "file";
-                    div.innerHTML = `${file.name}`;
+                    div.innerText = file.name;
                     div.onclick = () => loadPlayer(file.id, file.name, file.thumbnailLink);
                     filesDiv.appendChild(div);
                 }
             });
         }
 
-        function loadPlayer(fileId, name, thumb) {
-            document.getElementById("song-name").innerText = name;
-            document.getElementById("thumb").src = thumb || "https://cdn-icons-png.flaticon.com/512/727/727245.png";
+        function loadPlayer(fileId, name, thumbnailLink) {
             audio.src = `https://drive.google.com/uc?export=download&id=${fileId}`;
-            player.style.display = "block";
+            songName.innerText = name;
+            thumb.src = thumbnailLink || "https://cdn-icons-png.flaticon.com/512/727/727245.png";
             audio.play();
-        }
-
-        function togglePlay() {
-            if (audio.paused) {
-                audio.play();
-            } else {
-                audio.pause();
-            }
-        }
-
-        audio.ontimeupdate = () => {
-            const current = Math.floor(audio.currentTime);
-            const duration = Math.floor(audio.duration) || 0;
-            timeDisplay.innerText = `${formatTime(current)} / ${formatTime(duration)}`;
-        };
-
-        function formatTime(sec) {
-            const m = Math.floor(sec / 60);
-            const s = sec % 60;
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
         listPublicFiles();
