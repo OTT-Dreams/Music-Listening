@@ -13,14 +13,16 @@
         }
         h1 {
             text-align: center;
-            padding: 20px;
+            margin: 0;
+            padding: 10px 0;
         }
         .search-box {
             text-align: center;
-            padding: 10px;
+            margin: 0;
+            padding: 5px 0;
         }
         .search-box input {
-            padding: 10px;
+            padding: 8px;
             width: 80%;
             max-width: 400px;
             font-size: 16px;
@@ -29,7 +31,7 @@
         }
         .file {
             background: #222;
-            margin: 10px auto;
+            margin: 5px auto;
             padding: 10px;
             max-width: 400px;
             border-radius: 5px;
@@ -49,7 +51,6 @@
             font-size: 20px;
             cursor: pointer;
         }
-
         .player {
             position: fixed;
             bottom: 0;
@@ -63,7 +64,6 @@
             align-items: center;
             z-index: 999;
         }
-
         .player-info {
             display: flex;
             align-items: center;
@@ -72,31 +72,26 @@
             padding: 0 10px;
             box-sizing: border-box;
         }
-
         .player-info img {
             width: 40px;
             height: 40px;
             border-radius: 5px;
             object-fit: cover;
         }
-
         .scroll-name {
             overflow: hidden;
             white-space: nowrap;
             flex: 1;
         }
-
         .scroll-name span {
             display: inline-block;
             padding-left: 100%;
             animation: scrollText 10s linear infinite;
         }
-
         @keyframes scrollText {
             0% { transform: translateX(0); }
             100% { transform: translateX(-100%); }
         }
-
         iframe {
             width: 100%;
             height: 60px;
@@ -109,7 +104,6 @@
 <body>
 
     <h1>Google Drive Audio Files</h1>
-
     <div class="search-box">
         <input type="text" id="searchInput" placeholder="Search songs...">
     </div>
@@ -146,7 +140,6 @@
             const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType,thumbnailLink)`;
             const res = await fetch(url);
             const data = await res.json();
-
             allFiles = data.files.filter(file => supportedMimeTypes.includes(file.mimeType));
             renderFiles(allFiles);
         }
@@ -154,16 +147,13 @@
         function renderFiles(fileList) {
             const filesDiv = document.getElementById("files");
             filesDiv.innerHTML = "";
-
             fileList.forEach(file => {
                 const div = document.createElement("div");
                 div.className = "file";
-
                 const nameDiv = document.createElement("div");
                 nameDiv.innerText = file.name;
                 nameDiv.style.flex = "1";
                 nameDiv.onclick = () => loadPlayer(file.id, file.name, file.thumbnailLink);
-
                 const menuBtn = document.createElement("button");
                 menuBtn.className = "menu-btn";
                 menuBtn.innerHTML = "⋮";
@@ -171,7 +161,6 @@
                     e.stopPropagation();
                     showAbout(file.name);
                 };
-
                 div.appendChild(nameDiv);
                 div.appendChild(menuBtn);
                 filesDiv.appendChild(div);
@@ -188,7 +177,7 @@
             alert("About: " + name);
         }
 
-        searchInput.addEventListener("input", function() {
+        searchInput.addEventListener("input", function () {
             const searchValue = searchInput.value.toLowerCase();
             const filtered = allFiles.filter(file => file.name.toLowerCase().includes(searchValue));
             renderFiles(filtered);
