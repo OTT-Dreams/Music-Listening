@@ -15,6 +15,18 @@
             text-align: center;
             padding: 20px;
         }
+        .search-box {
+            text-align: center;
+            padding: 10px;
+        }
+        .search-box input {
+            padding: 10px;
+            width: 80%;
+            max-width: 400px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+        }
         .file {
             background: #222;
             margin: 10px auto;
@@ -97,6 +109,11 @@
 <body>
 
     <h1>Google Drive Audio Files</h1>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search songs...">
+    </div>
+
     <div id="files"></div>
 
     <div class="player" id="player">
@@ -114,6 +131,7 @@
         const songNameSpan = document.getElementById("song-name");
         const thumb = document.getElementById("thumb");
         const drivePlayer = document.getElementById("drivePlayer");
+        const searchInput = document.getElementById("searchInput");
 
         const supportedMimeTypes = [
             "audio/mpeg",
@@ -122,36 +140,41 @@
             "audio/ogg"
         ];
 
+        let allFiles = [];
+
         async function listPublicFiles() {
             const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType,thumbnailLink)`;
             const res = await fetch(url);
             const data = await res.json();
 
+            allFiles = data.files.filter(file => supportedMimeTypes.includes(file.mimeType));
+            renderFiles(allFiles);
+        }
+
+        function renderFiles(fileList) {
             const filesDiv = document.getElementById("files");
             filesDiv.innerHTML = "";
 
-            data.files.forEach(file => {
-                if (supportedMimeTypes.includes(file.mimeType)) {
-                    const div = document.createElement("div");
-                    div.className = "file";
+            fileList.forEach(file => {
+                const div = document.createElement("div");
+                div.className = "file";
 
-                    const nameDiv = document.createElement("div");
-                    nameDiv.innerText = file.name;
-                    nameDiv.style.flex = "1";
-                    nameDiv.onclick = () => loadPlayer(file.id, file.name, file.thumbnailLink);
+                const nameDiv = document.createElement("div");
+                nameDiv.innerText = file.name;
+                nameDiv.style.flex = "1";
+                nameDiv.onclick = () => loadPlayer(file.id, file.name, file.thumbnailLink);
 
-                    const menuBtn = document.createElement("button");
-                    menuBtn.className = "menu-btn";
-                    menuBtn.innerHTML = "⋮";
-                    menuBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        showAbout(file.name);
-                    };
+                const menuBtn = document.createElement("button");
+                menuBtn.className = "menu-btn";
+                menuBtn.innerHTML = "⋮";
+                menuBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    showAbout(file.name);
+                };
 
-                    div.appendChild(nameDiv);
-                    div.appendChild(menuBtn);
-                    filesDiv.appendChild(div);
-                }
+                div.appendChild(nameDiv);
+                div.appendChild(menuBtn);
+                filesDiv.appendChild(div);
             });
         }
 
@@ -164,6 +187,12 @@
         function showAbout(name) {
             alert("About: " + name);
         }
+
+        searchInput.addEventListener("input", function() {
+            const searchValue = searchInput.value.toLowerCase();
+            const filtered = allFiles.filter(file => file.name.toLowerCase().includes(searchValue));
+            renderFiles(filtered);
+        });
 
         listPublicFiles();
     </script>
